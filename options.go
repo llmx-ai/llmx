@@ -126,3 +126,147 @@ func WithDebug(debug bool) Option {
 		c.Debug = debug
 	}
 }
+
+// WithGroq configures the client for Groq (ultra-fast inference)
+func WithGroq(apiKey string) Option {
+	return func(c *Config) {
+		c.Provider = "groq"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key": apiKey,
+		}
+	}
+}
+
+// WithDeepSeek configures the client for DeepSeek (cost-effective)
+func WithDeepSeek(apiKey string) Option {
+	return func(c *Config) {
+		c.Provider = "deepseek"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key": apiKey,
+		}
+	}
+}
+
+// WithOllama configures the client for Ollama (local inference)
+func WithOllama(baseURL string) Option {
+	return func(c *Config) {
+		c.Provider = "ollama"
+		c.ProviderOptions = map[string]interface{}{
+			"base_url": baseURL,
+		}
+	}
+}
+
+// WithMistral configures the client for Mistral AI
+func WithMistral(apiKey string) Option {
+	return func(c *Config) {
+		c.Provider = "mistral"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key": apiKey,
+		}
+	}
+}
+
+// WithCohere configures the client for Cohere
+func WithCohere(apiKey string) Option {
+	return func(c *Config) {
+		c.Provider = "cohere"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key": apiKey,
+		}
+	}
+}
+
+// WithBedrock configures the client for Amazon Bedrock
+func WithBedrock(region, accessKeyID, secretAccessKey string) Option {
+	return func(c *Config) {
+		c.Provider = "bedrock"
+		c.ProviderOptions = map[string]interface{}{
+			"region":            region,
+			"access_key_id":     accessKeyID,
+			"secret_access_key": secretAccessKey,
+		}
+	}
+}
+
+// WithZhipu configures the client for Zhipu AI (智谱 GLM)
+func WithZhipu(apiKey string) Option {
+	return func(c *Config) {
+		c.Provider = "zhipu"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key": apiKey,
+		}
+	}
+}
+
+// WithTongyi configures the client for Alibaba Tongyi (阿里通义千问)
+func WithTongyi(apiKey string) Option {
+	return func(c *Config) {
+		c.Provider = "tongyi"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key": apiKey,
+		}
+	}
+}
+
+// WithWenxin configures the client for Baidu Wenxin (百度文心一言)
+func WithWenxin(apiKey, secretKey string) Option {
+	return func(c *Config) {
+		c.Provider = "wenxin"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key":    apiKey,
+			"secret_key": secretKey,
+		}
+	}
+}
+
+// WithDoubao configures the client for ByteDance Doubao (字节豆包)
+func WithDoubao(apiKey, secretKey string) Option {
+	return func(c *Config) {
+		c.Provider = "doubao"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key":    apiKey,
+			"secret_key": secretKey,
+		}
+	}
+}
+
+// WithHuggingFace configures the client for Hugging Face
+func WithHuggingFace(token string) Option {
+	return func(c *Config) {
+		c.Provider = "huggingface"
+		c.ProviderOptions = map[string]interface{}{
+			"api_key": token,
+		}
+	}
+}
+
+// WithLocalAI configures the client for LocalAI
+func WithLocalAI(baseURL string) Option {
+	return func(c *Config) {
+		c.Provider = "localai"
+		c.ProviderOptions = map[string]interface{}{
+			"base_url": baseURL,
+		}
+	}
+}
+
+// WithLMStudio configures the client for LM Studio
+func WithLMStudio(baseURL string) Option {
+	return func(c *Config) {
+		c.Provider = "lmstudio"
+		c.ProviderOptions = map[string]interface{}{
+			"base_url": baseURL,
+		}
+	}
+}
+
+// WithVLLM configures the client for vLLM
+func WithVLLM(baseURL string) Option {
+	return func(c *Config) {
+		c.Provider = "vllm"
+		c.ProviderOptions = map[string]interface{}{
+			"base_url": baseURL,
+		}
+	}
+}

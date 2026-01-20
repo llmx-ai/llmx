@@ -132,12 +132,202 @@ func (b *ClientBuilder) Organization(org string) *ClientBuilder {
 	return b
 }
 
-// Region sets the region (for Azure)
+// Region sets the region (for Azure, Bedrock)
 func (b *ClientBuilder) Region(region string) *ClientBuilder {
 	if b.err != nil {
 		return b
 	}
 	b.config.ProviderOptions["region"] = region
+	return b
+}
+
+// ====================
+// Provider-specific convenience methods
+// ====================
+
+// OpenAI configures the builder for OpenAI
+func (b *ClientBuilder) OpenAI(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "openai"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Anthropic configures the builder for Anthropic
+func (b *ClientBuilder) Anthropic(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "anthropic"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Google configures the builder for Google
+func (b *ClientBuilder) Google(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "google"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Groq configures the builder for Groq (ultra-fast inference)
+func (b *ClientBuilder) Groq(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "groq"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// DeepSeek configures the builder for DeepSeek (cost-effective)
+func (b *ClientBuilder) DeepSeek(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "deepseek"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Ollama configures the builder for Ollama (local inference)
+func (b *ClientBuilder) Ollama(baseURL string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "ollama"
+	if baseURL == "" {
+		baseURL = "http://localhost:11434"
+	}
+	b.config.ProviderOptions["base_url"] = baseURL
+	return b
+}
+
+// Mistral configures the builder for Mistral AI
+func (b *ClientBuilder) Mistral(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "mistral"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Cohere configures the builder for Cohere
+func (b *ClientBuilder) Cohere(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "cohere"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Bedrock configures the builder for Amazon Bedrock
+func (b *ClientBuilder) Bedrock(region, accessKeyID, secretAccessKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "bedrock"
+	b.config.ProviderOptions["region"] = region
+	b.config.ProviderOptions["access_key_id"] = accessKeyID
+	b.config.ProviderOptions["secret_access_key"] = secretAccessKey
+	return b
+}
+
+// Zhipu configures the builder for Zhipu AI (智谱 GLM)
+func (b *ClientBuilder) Zhipu(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "zhipu"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Tongyi configures the builder for Alibaba Tongyi (阿里通义千问)
+func (b *ClientBuilder) Tongyi(apiKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "tongyi"
+	b.config.ProviderOptions["api_key"] = apiKey
+	return b
+}
+
+// Wenxin configures the builder for Baidu Wenxin (百度文心一言)
+func (b *ClientBuilder) Wenxin(apiKey, secretKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "wenxin"
+	b.config.ProviderOptions["api_key"] = apiKey
+	b.config.ProviderOptions["secret_key"] = secretKey
+	return b
+}
+
+// Doubao configures the builder for ByteDance Doubao (字节豆包)
+func (b *ClientBuilder) Doubao(apiKey, secretKey string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "doubao"
+	b.config.ProviderOptions["api_key"] = apiKey
+	b.config.ProviderOptions["secret_key"] = secretKey
+	return b
+}
+
+// HuggingFace configures the builder for Hugging Face
+func (b *ClientBuilder) HuggingFace(token string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "huggingface"
+	b.config.ProviderOptions["api_key"] = token
+	return b
+}
+
+// LocalAI configures the builder for LocalAI
+func (b *ClientBuilder) LocalAI(baseURL string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "localai"
+	if baseURL == "" {
+		baseURL = "http://localhost:8080/v1"
+	}
+	b.config.ProviderOptions["base_url"] = baseURL
+	return b
+}
+
+// LMStudio configures the builder for LM Studio
+func (b *ClientBuilder) LMStudio(baseURL string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "lmstudio"
+	if baseURL == "" {
+		baseURL = "http://localhost:1234/v1"
+	}
+	b.config.ProviderOptions["base_url"] = baseURL
+	return b
+}
+
+// VLLM configures the builder for vLLM
+func (b *ClientBuilder) VLLM(baseURL string) *ClientBuilder {
+	if b.err != nil {
+		return b
+	}
+	b.config.Provider = "vllm"
+	if baseURL == "" {
+		baseURL = "http://localhost:8000/v1"
+	}
+	b.config.ProviderOptions["base_url"] = baseURL
 	return b
 }
 
@@ -152,9 +342,28 @@ func (b *ClientBuilder) Build() (*Client, error) {
 	if b.config.Provider == "" {
 		return nil, fmt.Errorf("provider is required")
 	}
+
+	// API key is optional for local providers (Ollama, LocalAI, LM Studio, vLLM)
+	localProviders := map[string]bool{
+		"ollama":   true,
+		"localai":  true,
+		"lmstudio": true,
+		"vllm":     true,
+	}
+
 	apiKey, _ := b.config.ProviderOptions["api_key"].(string)
-	if apiKey == "" {
-		return nil, fmt.Errorf("api_key is required")
+	baseURL, _ := b.config.ProviderOptions["base_url"].(string)
+
+	if !localProviders[b.config.Provider] {
+		// For non-local providers, API key is required
+		if apiKey == "" {
+			return nil, fmt.Errorf("api_key is required for provider '%s'", b.config.Provider)
+		}
+	} else {
+		// For local providers, base_url is required
+		if baseURL == "" {
+			return nil, fmt.Errorf("base_url is required for provider '%s'", b.config.Provider)
+		}
 	}
 
 	// Create client using the existing NewClient function with WithConfig option

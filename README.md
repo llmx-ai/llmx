@@ -67,6 +67,54 @@ func main() {
 }
 ```
 
+### 🔄 Switching Providers
+
+轻松切换不同的 AI 提供商：
+
+```go
+// OpenAI
+client := llmx.NewClientBuilder().
+    OpenAI(os.Getenv("OPENAI_API_KEY")).
+    Model("gpt-4-turbo").
+    Build()
+
+// Anthropic
+client := llmx.NewClientBuilder().
+    Anthropic(os.Getenv("ANTHROPIC_API_KEY")).
+    Model("claude-3-5-sonnet-20241022").
+    Build()
+
+// Groq (超快推理)
+client := llmx.NewClientBuilder().
+    Groq(os.Getenv("GROQ_API_KEY")).
+    Model("llama-3.3-70b-versatile").
+    Build()
+
+// DeepSeek (性价比之王)
+client := llmx.NewClientBuilder().
+    DeepSeek(os.Getenv("DEEPSEEK_API_KEY")).
+    Model("deepseek-chat").
+    Build()
+
+// Ollama (本地运行)
+client := llmx.NewClientBuilder().
+    Ollama("http://localhost:11434").
+    Model("llama3.3").
+    Build()
+
+// 智谱 AI
+client := llmx.NewClientBuilder().
+    Zhipu(os.Getenv("ZHIPU_API_KEY")).
+    Model("glm-4-plus").
+    Build()
+
+// 通义千问
+client := llmx.NewClientBuilder().
+    Tongyi(os.Getenv("DASHSCOPE_API_KEY")).
+    Model("qwen-max").
+    Build()
+```
+
 ## 📖 Documentation
 
 - [Quick Start Guide](./QUICKSTART.md) - Complete guide with all features
@@ -84,11 +132,36 @@ func main() {
 
 ## 🎯 Supported Providers
 
-- ✅ OpenAI (GPT-4, GPT-3.5)
-- ✅ Anthropic (Claude)
-- ✅ Google (Gemini)
-- ✅ Azure OpenAI
-- 🔜 20+ more providers
+### 国际主流 (8)
+
+- ✅ **OpenAI** - GPT-4, GPT-4 Turbo, GPT-3.5
+- ✅ **Anthropic** - Claude 3.5, Claude 3
+- ✅ **Google** - Gemini 1.5 Pro/Flash
+- ✅ **Azure OpenAI** - Enterprise-grade OpenAI
+- ✅ **Mistral AI** - Mistral Large, Mixtral
+- ✅ **Groq** - Ultra-fast inference (500+ tokens/s)
+- ✅ **Cohere** - Command R+, RAG specialist (Native SDK)
+- ✅ **Amazon Bedrock** - Multi-model access on AWS (AWS SDK v2)
+
+### 国内厂商 (5)
+
+- ✅ **DeepSeek** - 深度求索 (性价比之王)
+- ✅ **智谱 AI** - GLM-4 系列
+- ✅ **通义千问** - 阿里云 Qwen 系列
+- ✅ **文心一言** - 百度 ERNIE (OAuth 2.0)
+- ✅ **豆包** - 字节跳动 (Volcano Engine SDK)
+
+### 开源生态 (6)
+
+- ✅ **Ollama** - 本地运行 LLM 首选
+- ✅ **LocalAI** - 本地 OpenAI 兼容
+- ✅ **LM Studio** - 桌面图形界面
+- ✅ **vLLM** - 高性能推理引擎
+- ✅ **Hugging Face** - 数万种开源模型
+- ✅ **Compatible** - 任何 OpenAI 兼容 API
+
+**总计**: 19 个 Providers  
+✅ = 完全实现 | ⚠️ = 占位符 (需要完整 SDK 集成)
 
 ## 🛠️ Advanced Features
 

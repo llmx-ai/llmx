@@ -65,8 +65,8 @@ func (p *AnthropicProvider) SupportedFeatures() provider.Features {
 		ToolCalling:   true,
 		Vision:        true,
 		JSONMode:      false,
-		ReasoningMode: true,  // Claude thinking
-		CacheControl:  true,  // Prompt caching
+		ReasoningMode: true, // Claude thinking
+		CacheControl:  true, // Prompt caching
 		MultiModal:    true,
 		Embedding:     false,
 	}

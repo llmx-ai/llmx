@@ -24,18 +24,18 @@ func init() {
 func NewAzureProvider(opts map[string]interface{}) (provider.Provider, error) {
 	apiKey, hasKey := opts["api_key"].(string)
 	endpoint, hasEndpoint := opts["endpoint"].(string)
-	
+
 	if !hasKey || apiKey == "" {
 		return nil, fmt.Errorf("api_key is required for Azure provider")
 	}
-	
+
 	if !hasEndpoint || endpoint == "" {
 		return nil, fmt.Errorf("endpoint is required for Azure provider")
 	}
 
 	// Azure OpenAI configuration
 	config := openai.DefaultAzureConfig(apiKey, endpoint)
-	
+
 	// Optional: API version
 	if apiVersion, ok := opts["api_version"].(string); ok {
 		config.APIVersion = apiVersion
