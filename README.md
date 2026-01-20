@@ -69,10 +69,18 @@ func main() {
 
 ## 📖 Documentation
 
-- [Architecture](./llmx-design/ARCHITECTURE.md)
-- [API Design](./llmx-design/API_DESIGN.md)
-- [Examples](./llmx-design/EXAMPLES.md)
-- [Development Plan](./llmx-design/DEVELOPMENT_PLAN.md)
+- [Quick Start Guide](./QUICKSTART.md) - Complete guide with all features
+- [Examples](./examples/) - 9 complete examples
+  - [Basic Chat](./examples/chat/) - Simple chat example
+  - [Streaming](./examples/streaming/) - Streaming responses
+  - [Multiple Providers](./examples/providers/) - Provider switching
+  - [Tool Calling](./examples/tools/) - Tool system usage
+  - [Middleware](./examples/middleware/) - Middleware examples
+  - [Advanced Middleware](./examples/advanced-middleware/) - Rate limiting, circuit breaker
+  - [Structured Output](./examples/structured/) - JSON schema output
+  - [Telemetry](./examples/telemetry/) - OpenTelemetry integration
+  - [Performance](./examples/performance/) - Performance optimization
+- [API Reference](https://pkg.go.dev/github.com/llmx-ai/llmx) - Full API documentation on pkg.go.dev
 
 ## 🎯 Supported Providers
 
