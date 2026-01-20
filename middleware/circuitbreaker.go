@@ -186,10 +186,9 @@ func CircuitBreakerMiddleware(cb *CircuitBreaker) Middleware {
 			resp, err := next(ctx, req)
 
 			if err != nil {
-				// Check if error is retryable (circuit breaker should trip)
-				if isRetryable(err) {
-					cb.RecordFailure()
-				}
+				// Record all errors for circuit breaker
+				// (Circuit breaker should trip on any error, not just retryable ones)
+				cb.RecordFailure()
 				return nil, err
 			}
 
@@ -256,9 +255,8 @@ func CircuitBreakerPerModel(pmcb *PerModelCircuitBreaker) Middleware {
 			resp, err := next(ctx, req)
 
 			if err != nil {
-				if isRetryable(err) {
-					breaker.RecordFailure()
-				}
+				// Record all errors for circuit breaker
+				breaker.RecordFailure()
 				return nil, err
 			}
 

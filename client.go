@@ -2,6 +2,7 @@ package llmx
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime"
@@ -212,6 +213,50 @@ func (c *Client) rebuildHandler() {
 	}
 
 	c.handler = handler
+}
+
+// GenerateObject generates a structured object from a prompt
+// This is a convenience method for structured output as specified in design docs
+func (c *Client) GenerateObject(ctx context.Context, prompt string, output interface{}) error {
+	// Check if client is closed
+	if err := c.checkClosed(); err != nil {
+		return err
+	}
+
+	// Create request with JSON mode
+	req := &ChatRequest{
+		Messages: []Message{
+			{
+				Role: RoleSystem,
+				Content: []ContentPart{
+					TextPart{Text: "You must respond with valid JSON that matches the provided schema. Do not include any text outside the JSON object."},
+				},
+			},
+			{
+				Role: RoleUser,
+				Content: []ContentPart{
+					TextPart{Text: prompt},
+				},
+			},
+		},
+		ProviderOptions: map[string]interface{}{
+			"response_format": map[string]string{
+				"type": "json_object",
+			},
+		},
+	}
+
+	// Apply defaults
+	c.applyDefaults(req)
+
+	// Execute request
+	resp, err := c.Chat(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	// Parse JSON into output
+	return json.Unmarshal([]byte(resp.Content), output)
 }
 
 // Close closes the client and releases resources
