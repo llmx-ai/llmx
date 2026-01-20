@@ -46,9 +46,10 @@ func (p *OpenAIProvider) Name() string {
 
 // Chat sends a chat request
 func (p *OpenAIProvider) Chat(ctx context.Context, reqInterface interface{}) (interface{}, error) {
+	// Type assertion with detailed error
 	req, ok := reqInterface.(*llmx.ChatRequest)
 	if !ok {
-		return nil, fmt.Errorf("invalid request type")
+		return nil, fmt.Errorf("openai: invalid request type %T, expected *llmx.ChatRequest", reqInterface)
 	}
 
 	// Convert request
@@ -66,9 +67,10 @@ func (p *OpenAIProvider) Chat(ctx context.Context, reqInterface interface{}) (in
 
 // StreamChat sends a streaming chat request
 func (p *OpenAIProvider) StreamChat(ctx context.Context, reqInterface interface{}) (interface{}, error) {
+	// Type assertion with detailed error
 	req, ok := reqInterface.(*llmx.ChatRequest)
 	if !ok {
-		return nil, fmt.Errorf("invalid request type")
+		return nil, fmt.Errorf("openai: invalid request type %T, expected *llmx.ChatRequest", reqInterface)
 	}
 
 	// Convert request

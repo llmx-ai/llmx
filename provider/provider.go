@@ -5,14 +5,20 @@ import (
 )
 
 // Provider is the interface that all AI providers must implement
+// Note: To avoid circular dependencies, we use concrete types imported from llmx package.
+// Implementations should use *llmx.ChatRequest, *llmx.ChatResponse, and *llmx.ChatStream
 type Provider interface {
 	// Name returns the provider name
 	Name() string
 
 	// Chat sends a chat request and returns the response
+	// Parameter type: *llmx.ChatRequest
+	// Return type: *llmx.ChatResponse
 	Chat(ctx context.Context, req interface{}) (interface{}, error)
 
 	// StreamChat sends a streaming chat request
+	// Parameter type: *llmx.ChatRequest
+	// Return type: *llmx.ChatStream
 	StreamChat(ctx context.Context, req interface{}) (interface{}, error)
 
 	// SupportedFeatures returns the features supported by this provider

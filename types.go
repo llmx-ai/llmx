@@ -181,3 +181,9 @@ func ExtractText(message Message) string {
 	}
 	return text
 }
+
+// Handler is a function that handles a chat request
+type Handler func(ctx context.Context, req *ChatRequest) (*ChatResponse, error)
+
+// Middleware is a function that wraps a Handler
+type Middleware func(next Handler) Handler

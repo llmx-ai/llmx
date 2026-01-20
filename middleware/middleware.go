@@ -1,16 +1,14 @@
 package middleware
 
 import (
-	"context"
-
 	"github.com/llmx-ai/llmx"
 )
 
-// Middleware is a function that wraps a Handler
-type Middleware func(next Handler) Handler
-
-// Handler is a function that handles a chat request
-type Handler func(ctx context.Context, req *llmx.ChatRequest) (*llmx.ChatResponse, error)
+// Re-export types from llmx package for convenience
+type (
+	Handler    = llmx.Handler
+	Middleware = llmx.Middleware
+)
 
 // Chain creates a middleware chain
 func Chain(middlewares ...Middleware) Middleware {

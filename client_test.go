@@ -14,9 +14,9 @@ func TestNewClient(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "valid openai config",
+			name: "valid mock config",
 			opts: []Option{
-				WithOpenAI("test-key"),
+				WithProvider("mock", map[string]interface{}{}),
 			},
 			wantErr: false,
 		},
@@ -28,7 +28,7 @@ func TestNewClient(t *testing.T) {
 		{
 			name: "with default model",
 			opts: []Option{
-				WithOpenAI("test-key"),
+				WithProvider("mock", map[string]interface{}{}),
 				WithDefaultModel("gpt-4"),
 			},
 			wantErr: false,
@@ -36,7 +36,7 @@ func TestNewClient(t *testing.T) {
 		{
 			name: "with temperature",
 			opts: []Option{
-				WithOpenAI("test-key"),
+				WithProvider("mock", map[string]interface{}{}),
 				WithTemperature(0.7),
 			},
 			wantErr: false,
@@ -109,12 +109,15 @@ func TestClient_applyDefaults(t *testing.T) {
 	defaultTemp := 0.7
 	defaultTokens := 1000
 
-	client, _ := NewClient(
-		WithOpenAI("test-key"),
+	client, err := NewClient(
+		WithProvider("mock", map[string]interface{}{}),
 		WithDefaultModel("gpt-4"),
 		WithTemperature(defaultTemp),
 		WithMaxTokens(defaultTokens),
 	)
+	if err != nil {
+		t.Fatalf("Failed to create client: %v", err)
+	}
 
 	req := &ChatRequest{
 		Messages: []Message{
@@ -143,10 +146,13 @@ func TestClient_applyDefaults(t *testing.T) {
 }
 
 func TestClient_Config(t *testing.T) {
-	client, _ := NewClient(
-		WithOpenAI("test-key"),
+	client, err := NewClient(
+		WithProvider("mock", map[string]interface{}{}),
 		WithDefaultModel("gpt-4"),
 	)
+	if err != nil {
+		t.Fatalf("Failed to create client: %v", err)
+	}
 
 	config := client.Config()
 	if config.DefaultModel != "gpt-4" {
@@ -162,6 +168,13 @@ func TestClient_Config(t *testing.T) {
 
 // Mock provider for testing
 type mockProvider struct{}
+
+func init() {
+	// Register mock provider for testing
+	provider.Register("mock", func(opts map[string]interface{}) (provider.Provider, error) {
+		return &mockProvider{}, nil
+	})
+}
 
 func (m *mockProvider) Name() string {
 	return "mock"

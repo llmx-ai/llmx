@@ -8,6 +8,13 @@ import (
 // Option is a function that modifies the config
 type Option func(*Config)
 
+// WithConfig uses an existing Config
+func WithConfig(config *Config) Option {
+	return func(c *Config) {
+		*c = *config
+	}
+}
+
 // WithProvider sets the provider
 func WithProvider(name string, opts map[string]interface{}) Option {
 	return func(c *Config) {

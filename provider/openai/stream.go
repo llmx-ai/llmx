@@ -23,27 +23,53 @@ func (p *OpenAIProvider) handleStream(
 		Type: core.EventTypeStart,
 	})
 
+	// Use a channel for receiving stream responses to support cancellation
+	type streamResult struct {
+		response openai.ChatCompletionStreamResponse
+		err      error
+	}
+	resultChan := make(chan streamResult, 1)
+
 	for {
+		// Start receiving in a goroutine to allow immediate cancellation
+		go func() {
+			response, err := stream.Recv()
+			select {
+			case resultChan <- streamResult{response: response, err: err}:
+			case <-ctx.Done():
+				// Context cancelled, don't send result
+			}
+		}()
+
+		// Wait for either result or cancellation
 		select {
 		case <-ctx.Done():
 			chatStream.SendError(ctx.Err())
 			return
-		default:
-			response, err := stream.Recv()
-			if err == io.EOF {
+
+		case result := <-resultChan:
+			if result.err == io.EOF {
 				// Stream finished
 				chatStream.SendEvent(core.StreamEvent{
 					Type: core.EventTypeFinish,
 				})
 				return
 			}
-			if err != nil {
-				chatStream.SendError(p.convertError(err))
+			if result.err != nil {
+				chatStream.SendError(p.convertError(result.err))
 				return
 			}
 
 			// Process response chunks
-			for _, choice := range response.Choices {
+			for _, choice := range result.response.Choices {
+				// Check context before processing each chunk
+				select {
+				case <-ctx.Done():
+					chatStream.SendError(ctx.Err())
+					return
+				default:
+				}
+
 				// Text delta
 				if choice.Delta.Content != "" {
 					chatStream.SendEvent(core.StreamEvent{

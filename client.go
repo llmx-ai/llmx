@@ -3,6 +3,9 @@ package llmx
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"runtime"
+	"sync"
 
 	"github.com/llmx-ai/llmx/provider"
 )
@@ -11,8 +14,14 @@ import (
 type Client struct {
 	config      *Config
 	provider    provider.Provider
-	middlewares []interface{} // Store middlewares
-	tools       []Tool        // Store tools
+	middlewares []Middleware // Store middlewares with correct type
+	handler     Handler      // Cached middleware chain handler
+	tools       []Tool       // Store tools
+
+	// Resource management
+	closeOnce sync.Once
+	closed    bool
+	mu        sync.RWMutex
 }
 
 // NewClient creates a new llmx client
@@ -36,14 +45,27 @@ func NewClient(opts ...Option) (*Client, error) {
 		return nil, fmt.Errorf("failed to create provider: %w", err)
 	}
 
-	return &Client{
+	client := &Client{
 		config:   config,
 		provider: prov,
-	}, nil
+		tools:    []Tool{},
+	}
+
+	// Set finalizer to ensure resources are cleaned up
+	runtime.SetFinalizer(client, func(c *Client) {
+		c.Close()
+	})
+
+	return client, nil
 }
 
 // Chat sends a chat request and returns the response
 func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
+	// Check if client is closed
+	if err := c.checkClosed(); err != nil {
+		return nil, err
+	}
+
 	// Validate request
 	if err := c.validateRequest(req); err != nil {
 		return nil, err
@@ -52,15 +74,21 @@ func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, err
 	// Apply defaults
 	c.applyDefaults(req)
 
-	// Call provider
+	// Use middleware chain if available
+	if c.handler != nil {
+		return c.handler(ctx, req)
+	}
+
+	// Fallback to direct provider call
 	respInterface, err := c.provider.Chat(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
+	// Type assertion with detailed error handling
 	resp, ok := respInterface.(*ChatResponse)
 	if !ok {
-		return nil, fmt.Errorf("invalid response type from provider")
+		return nil, fmt.Errorf("llmx: invalid response type %T from provider %s", respInterface, c.provider.Name())
 	}
 
 	return resp, nil
@@ -68,6 +96,11 @@ func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, err
 
 // StreamChat sends a streaming chat request
 func (c *Client) StreamChat(ctx context.Context, req *ChatRequest) (*ChatStream, error) {
+	// Check if client is closed
+	if err := c.checkClosed(); err != nil {
+		return nil, err
+	}
+
 	// Validate request
 	if err := c.validateRequest(req); err != nil {
 		return nil, err
@@ -82,9 +115,10 @@ func (c *Client) StreamChat(ctx context.Context, req *ChatRequest) (*ChatStream,
 		return nil, err
 	}
 
+	// Type assertion with detailed error handling
 	stream, ok := streamInterface.(*ChatStream)
 	if !ok {
-		return nil, fmt.Errorf("invalid stream type from provider")
+		return nil, fmt.Errorf("llmx: invalid stream type %T from provider %s", streamInterface, c.provider.Name())
 	}
 
 	return stream, nil
@@ -147,7 +181,76 @@ func (c *Client) Tools() []Tool {
 }
 
 // Use adds middleware to the client
-func (c *Client) Use(middlewares ...interface{}) *Client {
-	c.middlewares = append(c.middlewares, middlewares...)
+func (c *Client) Use(mws ...Middleware) *Client {
+	c.middlewares = append(c.middlewares, mws...)
+	c.rebuildHandler()
 	return c
+}
+
+// rebuildHandler rebuilds the middleware chain handler
+func (c *Client) rebuildHandler() {
+	// Base handler that calls the provider
+	baseHandler := func(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
+		respInterface, err := c.provider.Chat(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		// Type assertion with detailed error handling
+		resp, ok := respInterface.(*ChatResponse)
+		if !ok {
+			return nil, fmt.Errorf("llmx: invalid response type %T from provider %s", respInterface, c.provider.Name())
+		}
+
+		return resp, nil
+	}
+
+	// Apply all middlewares in reverse order (last added = outermost)
+	handler := baseHandler
+	for i := len(c.middlewares) - 1; i >= 0; i-- {
+		handler = c.middlewares[i](handler)
+	}
+
+	c.handler = handler
+}
+
+// Close closes the client and releases resources
+// It's safe to call Close multiple times
+func (c *Client) Close() error {
+	var err error
+	c.closeOnce.Do(func() {
+		c.mu.Lock()
+		defer c.mu.Unlock()
+
+		c.closed = true
+
+		// Close HTTP client connections if using default transport
+		if c.config.HTTPClient != nil {
+			if transport, ok := c.config.HTTPClient.Transport.(*http.Transport); ok {
+				transport.CloseIdleConnections()
+			}
+		}
+
+		// Cancel finalizer since we're explicitly closing
+		runtime.SetFinalizer(c, nil)
+	})
+	return err
+}
+
+// checkClosed returns an error if the client is closed
+func (c *Client) checkClosed() error {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	if c.closed {
+		return fmt.Errorf("client is closed")
+	}
+	return nil
+}
+
+// IsClosed returns whether the client is closed
+func (c *Client) IsClosed() bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.closed
 }
